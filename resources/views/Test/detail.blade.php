@@ -59,7 +59,7 @@
     <div class="form-row">
         <div class="custom-file mb-3">
             <label for="img_path">商品画像</label>
-            <img src="{{ asset($product->image_file) }}">
+            <img src="{{ asset('storage/'.$product->image_file) }}">
         </div>
     </div>
 
@@ -75,8 +75,8 @@
     <!--ボタンブロック-->
     <div class="form-group row">
         <div class="mt-5">
-            <a href="{{ route('edit',$product->id)}}" class="btn btn-primary">編集</a>
-            <a href="{{ route('List')}}" class="btn btn-warning">戻る</a>
+            <a href="{{ route('edit', $product->id) }}" class="btn btn-primary">編集</a>
+            <a href="{{ route('List') }}" class="btn btn-warning">戻る</a>
 
         </div>
     </div>

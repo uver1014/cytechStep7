@@ -68,7 +68,7 @@ class TestController extends Controller
 
         if ($request->has('img_path')) {
 
-            $image = $request->file('image');
+            $image = $request->file('img_path');
             //②画像ファイルのファイル名を取得
             $file_name = $image->getClientOriginalName();
             //③storage/app/public/imagesフォルダ内に、取得したファイル名で保存
@@ -128,7 +128,7 @@ class TestController extends Controller
             $path = $product->img_path;
             if (isset($image)) {
                 Storage::delete('public/images' . $path);
-                $path = $image->store('product', 'public/images');
+                $path = $image->storeAs('product', 'public/images');
             }
         }
 

@@ -43,7 +43,7 @@
             <div class="col-md-6 mb-3">
                 <label for="company_id">メーカー名&#42;</label>
                 <select name="company_id" id="company_id" class="form-select">
-                    <option value="{{ $product->company_id }}">選択してください</option>
+                    <option value="{{ $product->company_id }}">{{ $product->company->company_name }}</option>
                     @foreach($companies as $company)
                     <option value="{{ $company->id }}">{{ $company->company_name }}</option>
                     @endforeach
@@ -72,7 +72,7 @@
         <div class="form-row">
             <div class="col-md-3 mb-3">
                 <label for="stock">在庫数&#42;</label>
-                <input type="text" class="form-control" id="stock" name="stock" value="{{ $product->idstock }}">
+                <input type="text" class="form-control" id="stock" name="stock" value="{{ $product->stock }}">
             </div>
             @if($errors->has('stock'))
             <div class="text-danger">
@@ -86,7 +86,7 @@
                 <label for="img_path">商品画像</label>
                 <input type="file" class="custom-file-input" id="img_path" name="img_path" value="{{ old('img_path') }}">
                 {{--<label class="productFile" for="customFile">ファイル選択...</label>--}}
-                <img src="{{ asset($product->image_file) }}">
+                <img src="{{ asset('storage/'.$product->image_file) }}">
             </div>
         </div>
 
