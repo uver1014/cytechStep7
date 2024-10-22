@@ -15,8 +15,7 @@ class TestController extends Controller
 
     public function showList()
     {
-
-        $products = product::latest()->orderBy('id', 'asc')->paginate(10);
+        $products = product::orderByDesc('id')->paginate(10);
         $companies = company::all();
 
         return view('layouts.list', ['products' => $products, 'companies' => $companies]);
@@ -75,6 +74,7 @@ class TestController extends Controller
             $image->storeAs('public/images', $file_name);
             //④データベース登録用に、ファイルパスを作成
             $image_path = 'storage/images/' . $file_name;
+            chmod($image_path, 0775);
         }
 
         $inputs = $request->all();

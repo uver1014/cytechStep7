@@ -40,7 +40,7 @@
             @foreach($products as $product)
             <tr>
                 <td>{{ $product->id }}</td>
-                <td><img src="{{ asset($product->image_file) }}"></td>
+                <td><img src="{{ asset'storage/images/'.($product->image_file) }}"></td>
                 <td>{{ $product->product_name }}</td>
                 <td>{{ $product->price }}</td>
                 <td>{{ $product->stock }}</td>
@@ -56,7 +56,7 @@
             </tr>
             @endforeach
         </table>
-        {{ $products->links() }}
+        {{ $products->appends(request()->query())->links() }}
     </div>
 </div>
 

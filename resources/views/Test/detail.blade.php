@@ -59,7 +59,7 @@
     <div class="form-row">
         <div class="custom-file mb-3">
             <label for="img_path">商品画像</label>
-            <img src="{{ asset('storage/'.$product->image_file) }}">
+            <img src="{{ asset('/storage/images/'.$product->image_file) }}">
         </div>
     </div>
 
