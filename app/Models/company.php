@@ -17,21 +17,14 @@ class company extends Model
     protected $fillable =
     [
         'id',
-        'company_id',
         'company_name',
         'street_address',
         'representative_name'
     ];    
     
-    public function product()
-    {
-        return $this->hasMany(product::class);
-        $products = product::all();
-    }
-
-    public function getList() {
-        // articlesテーブルからデータを取得
-        $companies = DB::table('comapanies')->get();
+    public function getCompany() {
+        // companiessテーブルからデータを取得
+        $companies = DB::table('companies')->get();
 
         return $companies;
     }

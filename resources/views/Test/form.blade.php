@@ -1,4 +1,4 @@
-@extends('Test.lists')
+@extends('Test.base')
 @section('title','商品新規登録画面')
 @section('content')
 
@@ -18,7 +18,7 @@
         <div class="form-row">
             <div class="col-md-6 mb-3">
                 <label for="product_name">商品名&#42;</label>
-                <input type="text" class="form-control" id="product_name" name="product_name" value="{{ old('product_name') }}">
+                <input type="text" class="form-control" id="product_name" name="product_name" value="">
             </div>
             @if($errors->has('product_name'))
             <div class="text-danger">
@@ -31,7 +31,7 @@
             <div class="col-md-6 mb-3">
                 <label for="company_id">メーカー名&#42;</label>
                 <select name="company_id" id="company_id" class="form-select">
-                    <option value="{{ old('company_id') }}">選択してください</option>
+                    <option value="">選択してください</option>
                     @foreach($companies as $company)
                     <option value="{{ $company->id }}">{{ $company->company_name }}</option>
                     @endforeach
@@ -48,7 +48,7 @@
         <div class="form-row">
             <div class="col-md-3 mb-3">
                 <label for="price">価格&#42;</label>
-                <input type="text" class="form-control" id="price" name="price" value="{{ old('price') }}">
+                <input type="text" class="form-control" id="price" name="price" value="">
             </div>
             @if($errors->has('price'))
             <div class="text-danger">
@@ -60,7 +60,7 @@
         <div class="form-row">
             <div class="col-md-3 mb-3">
                 <label for="stock">在庫数&#42;</label>
-                <input type="text" class="form-control" id="stock" name="stock" value="{{ old('stock') }}">
+                <input type="text" class="form-control" id="stock" name="stock" value="">
             </div>
             @if($errors->has('stock'))
             <div class="text-danger">
@@ -72,7 +72,7 @@
         <div class="form-row">
             <div class="custom-file mb-3">
                 <label for="img_path">商品画像</label>
-                <input type="file" class="custom-file-input" id="img_path" name="img_path" value="{{ old('img_path') }}">
+                <input type="file" class="custom-file-input" id="img_path" name="img_path" value="">
                 {{--<label class="productFile" for="customFile">ファイル選択...</label>--}}
                 
             </div>
@@ -80,7 +80,7 @@
 
         <div class="form-group mb-3">
             <label for="comment">コメント</label>
-            <textarea class="form-control" id="comment" name="comment" rows="3">{{ old('comment') }}</textarea>
+            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
             @if($errors->has('comment'))
             <div class="text-danger">
                 {{ $errors->first('comment') }}

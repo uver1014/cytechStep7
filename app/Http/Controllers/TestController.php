@@ -13,57 +13,45 @@ use PHPUnit\Framework\Test;
 class TestController extends Controller
 {
 
+    //一覧画面を表示
     public function showList()
     {
-        $products = product::orderByDesc('id')->paginate(10);
-        $companies = company::all();
+        //productsデータを呼び出し
+        $model = new product();
+        $products = $model->getList();
+        //companiesデータを呼び出し
+        $model = new company();
+        $companies = $model->getCompany();
 
         return view('layouts.list', ['products' => $products, 'companies' => $companies]);
     }
 
-    public function exeSearch(Request $request)
-    {
+    //検索機能
+    public function exeSearch(Request $request){
 
+        //入力された値を代入
         $keyword = $request->input('keyword');
         $company_id = $request->input('company_id');
-
-        $query = product::query();
-
-        $products = DB::table('products')
-            ->join('companies', 'products.company_id', '=', 'companies.id')
-            ->select('products.*', 'companies.company_name as company_name')
-            ->get();
-
-        if (!empty($company_id)) {
-            $query->where('company_id', $company_id);
-        }
-
-        if (!empty($keyword)) {
-            $query->where('product_name', 'like', "%{$keyword}%")
-                ->orwhere('price', $keyword)
-                ->orwhere('stock', $keyword)
-                ->orwhere('comment', 'like', "%{$keyword}%");
-        }
-        $companies = company::all();
-        $products = $query->orderBy('id', 'asc')->paginate(10);
-
-        return view(
-            'layouts.list',
-            ['keyword' => $keyword, 'companies' => $companies, 'products' => $products]
-        );
-    }
-
-
-    public function createList()
-    {
-        $companies = company::all();
+        //検索処理
         $model = new product();
-        $products = $model->getList();
-        return view('Test.form', ['companies' => $companies]);
+        $products = $model->searchProducts($keyword, $company_id);
+        //companiesデータを呼び出し
+        $model = new company();
+        $companies = $model->getCompany();
+
+        return view('layouts.list', ['keyword' => $keyword, 'companies' => $companies, 'products' => $products]);
     }
 
-    public function exeStore(TestRequest $request)
-    {
+    //登録画面を表示
+    public function createList(){
+        //
+        $model = new company();
+        $companies = $model->getCompany();
+        return view('Test.form',  ['companies' => $companies]);
+    }
+
+    //登録処理
+    public function exeStore(TestRequest $request){
 
         if ($request->has('img_path')) {
 
@@ -74,31 +62,27 @@ class TestController extends Controller
             $image->storeAs('public/images', $file_name);
             //④データベース登録用に、ファイルパスを作成
             $image_path = 'storage/images/' . $file_name;
-            chmod($image_path, 0775);
         }
-
-        $inputs = $request->all();
-        product::create($inputs);
-
         DB::beginTransaction();
 
         try {
             $model = new product();
-            $model->registPic($image_path);
-            $model->registProduct($request);
+            $model->registProduct($request, $image_path);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return back();
         }
+
         session()->flash('message', '登録しました');
         return redirect(route('create'));
     }
 
-    public function showDetail($id)
-    {
+    //詳細画面の表示
+    public function showDetail($id){
 
-        $product = product::find($id);
+        $model = new product();
+        $product = $model->findList($id);
 
         if (is_null($product)) {
             session()->flash('message', 'データがありません');
@@ -108,49 +92,51 @@ class TestController extends Controller
         return view('Test.detail', ['product' => $product]);
     }
 
-    public function editDetail($id)
-    {
-
-        $companies = company::all();
+    //編集画面の表示
+    public function editDetail($id){
+        //
+        $model = new company();
+        $companies = $model->getCompany();
+        //
         $model = new product();
-        $products = $model->getList();
-        $product = product::find($id);
-        return view('Test.edit', ['companies' => $companies, 'product' => $product]);
+        $product = $model->findList($id);
+        return view('Test.edit', ['product' => $product, 'companies' => $companies]);
     }
 
+    //更新処理
+    public function exeUpdate(TestRequest $request, $id){
 
-    public function exeUpdate(TestRequest $request, product $product, $id)
-    {
+        $model = new product();
+        $product = $model->findList($id);
 
         if ($request->has('img_path')) {
-
             $image = $request->file('img_path');
             $path = $product->img_path;
+
             if (isset($image)) {
-                Storage::delete('public/images' . $path);
-                $path = $image->storeAs('product', 'public/images');
+                //古い画像を削除
+                Storage::delete('public/images/' . $path);
+                //新しい画像を保存
+                $fileName = $image->getClientOriginalName();
+                $image->storeAs('public/images', $fileName);
+                $image_path = 'storage/images/' . $fileName;
             }
         }
 
-        $product = product::find($id);
+        try {
+            $model = new product();
+            $product = $model->updateProduct($request->all(), $image_path, $id);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back();
+        }
 
-        $product->fill([
-            'product_name' => $request->product_name,
-            'company_id' => $request->company_id,
-            'price' => $request->price,
-            'stock' => $request->stock,
-            'img_path' => $request->img_pathe,
-            'comment' => $request->comment
-        ]);
-
-        $product->save();
-
-        return redirect(route('edit', $product->id))->with('message', '更新しました');
+        return redirect(route('edit', $id))->with('message', '更新しました');
     }
 
-
-    public function exeDelete($id)
-    {
+    //削除機能
+    public function exeDelete($id){
 
         if (empty($id)) {
             session()->flash('message', 'データがありません');

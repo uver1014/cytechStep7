@@ -1,4 +1,4 @@
-@extends('Test.lists')
+@extends('Test.base')
 @section('title','商品情報詳細画面')
 @section('content')
 
@@ -30,12 +30,10 @@
         <div class="col-md-6 mb-3">
             <label for="company_id">メーカー名</label>
             <div name="company_id" id="company_id" class="form-select">
-                {{ $product->company->company_name }}
+                {{ $product->company_name }}
             </div>
         </div>
     </div>
-
-
 
     <div class="form-row">
         <div class="col-md-3 mb-3">
@@ -59,7 +57,7 @@
     <div class="form-row">
         <div class="custom-file mb-3">
             <label for="img_path">商品画像</label>
-            <img src="{{ asset('/storage/images/'.$product->image_file) }}">
+            <img src="{{ asset($product->img_path) }}" alt="商品画像">
         </div>
     </div>
 

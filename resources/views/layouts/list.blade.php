@@ -1,4 +1,4 @@
-@extends('Test.lists')
+@extends('Test.base')
 @section('title','商品一覧画面')
 @section('content')
 <div class="container">
@@ -40,11 +40,11 @@
             @foreach($products as $product)
             <tr>
                 <td>{{ $product->id }}</td>
-                <td><img src="{{ asset'storage/images/'.($product->image_file) }}"></td>
+                <td><img src="{{ asset($product->img_path) }}"></td>
                 <td>{{ $product->product_name }}</td>
                 <td>{{ $product->price }}</td>
                 <td>{{ $product->stock }}</td>
-                <td>{{ $product-> company-> company_name }}</td>
+                <td>{{ $product->company_name }}</td>
                 <td><a href="{{ route('detail',$product->id) }}" class="btn btn-primary">詳細</a></td>
                 <td>
                     <form method="POST" action="{{ route('delete', $product->id) }}" onSubmit="return checkDelete()" enctype='multipart/form-data'>
@@ -56,7 +56,7 @@
             </tr>
             @endforeach
         </table>
-        {{ $products->appends(request()->query())->links() }}
+
     </div>
 </div>
 

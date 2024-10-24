@@ -1,4 +1,4 @@
-@extends('Test.lists')
+@extends('Test.base')
 @section('title','商品情報編集画面')
 @section('content')
 
@@ -8,7 +8,7 @@
         <h2>商品情報編集画面</h2>
     </div>
 
-    <form method="POST" action="{{ route('update',$product->id) }}" onSubmit="return checkUpdate()" enctype='multipart/form-data'>
+    <form method="POST" action="{{ route('update', $product->id) }}" onSubmit="return checkUpdate()" enctype='multipart/form-data'>
     @csrf
     @method('PUT')
     <input type="hidden" name="_method" value="put">
@@ -43,9 +43,8 @@
             <div class="col-md-6 mb-3">
                 <label for="company_id">メーカー名&#42;</label>
                 <select name="company_id" id="company_id" class="form-select">
-                    <option value="{{ $product->company_id }}">{{ $product->company->company_name }}</option>
                     @foreach($companies as $company)
-                    <option value="{{ $company->id }}">{{ $company->company_name }}</option>
+                    <option value="{{ old('conpany_id') }}">{{ $company->company_name }}</option>
                     @endforeach
                 </select>
                 @if($errors->has('company_id'))
@@ -55,7 +54,6 @@
                 @endif
             </div>
         </div>
-
 
         <div class="form-row">
             <div class="col-md-3 mb-3">
@@ -86,7 +84,7 @@
                 <label for="img_path">商品画像</label>
                 <input type="file" class="custom-file-input" id="img_path" name="img_path" value="{{ old('img_path') }}">
                 {{--<label class="productFile" for="customFile">ファイル選択...</label>--}}
-                <img src="{{ asset('storage/'.$product->image_file) }}">
+                <img src="{{ asset($product->img_path) }}">
             </div>
         </div>
 
