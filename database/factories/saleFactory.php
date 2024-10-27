@@ -17,7 +17,7 @@ class saleFactory extends Factory
     public function definition()
     {
         return [
-            'product_id' => $this -> faker -> numberBetween($min = 1000, $max = 2000),
+            'product_id' => $this -> faker -> numberBetween($min = 1, $max = 100),
             'created_at' => $this -> faker -> dateTime,
             'updated_at' => $this -> faker -> dateTime
         ];

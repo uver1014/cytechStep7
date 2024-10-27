@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         
         product::factory()->count(10)->create();
         sale::factory()->count(10)->create();
+        $this->call(companiesTableSeeder::class);
     }
 }

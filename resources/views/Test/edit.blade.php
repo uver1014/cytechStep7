@@ -9,9 +9,9 @@
     </div>
 
     <form method="POST" action="{{ route('update', $product->id) }}" onSubmit="return checkUpdate()" enctype='multipart/form-data'>
-    @csrf
-    @method('PUT')
-    <input type="hidden" name="_method" value="put">
+        @csrf
+        @method('PUT')
+        <input type="hidden" name="_method" value="put">
         @if (session('message'))
         <div class="text-danger">
             {{ session('message') }}
@@ -44,7 +44,10 @@
                 <label for="company_id">メーカー名&#42;</label>
                 <select name="company_id" id="company_id" class="form-select">
                     @foreach($companies as $company)
-                    <option value="{{ $company->id }}" selected>{{ $company->company_name }}</option>
+                    <option value="{{ $company->id }}"
+                        {{ $company->id == $product->company_id ? 'selected' : '' }}>
+                        {{ $company->company_name }}
+                    </option>
                     @endforeach
                 </select>
                 @if($errors->has('company_id'))
