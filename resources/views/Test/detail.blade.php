@@ -57,7 +57,7 @@
     <div class="form-row">
         <div class="custom-file mb-3">
             <label for="img_path">商品画像</label>
-            <img src="{{ asset($product->img_path) }}" alt="商品画像">
+            <img src="{{ asset($product->img_path) }}" >
         </div>
     </div>
 
@@ -68,7 +68,6 @@
         </div>
 
     </div>
-
 
     <!--ボタンブロック-->
     <div class="form-group row">

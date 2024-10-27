@@ -14,8 +14,7 @@ class TestController extends Controller
 {
 
     //一覧画面を表示
-    public function showList()
-    {
+    public function showList(){
         //productsデータを呼び出し
         $model = new product();
         $products = $model->getList();
@@ -97,7 +96,7 @@ class TestController extends Controller
         //
         $model = new company();
         $companies = $model->getCompany();
-        //
+        //idのデータを呼び出し
         $model = new product();
         $product = $model->findList($id);
         return view('Test.edit', ['product' => $product, 'companies' => $companies]);
@@ -122,10 +121,10 @@ class TestController extends Controller
                 $image_path = 'storage/images/' . $fileName;
             }
         }
-
+        DB::beginTransaction();
         try {
             $model = new product();
-            $product = $model->updateProduct($request->all(), $image_path, $id);
+            $product = $model->updateProduct($request, $image_path, $id);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();

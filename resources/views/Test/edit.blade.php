@@ -44,7 +44,7 @@
                 <label for="company_id">メーカー名&#42;</label>
                 <select name="company_id" id="company_id" class="form-select">
                     @foreach($companies as $company)
-                    <option value="{{ old('conpany_id') }}">{{ $company->company_name }}</option>
+                    <option value="{{ $company->id }}" selected>{{ $company->company_name }}</option>
                     @endforeach
                 </select>
                 @if($errors->has('company_id'))

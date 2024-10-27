@@ -57,15 +57,16 @@ class product extends Model
         return $query->orderBy('products.id', 'asc')->paginate(10);
     }
     
+
     // 登録処理
-    public function registProduct($data, $image_path = null) {
+    public function registProduct($data, $image_path) {
         DB::table('products')->insert([
             'company_id' => $data->company_id,
             'product_name' => $data->product_name,
             'price' => $data->price,
             'stock' => $data->stock,
-            'comment' => $data->comment,
             'img_path' => $image_path,
+            'comment' => $data->comment,
         ]);
     }
     
