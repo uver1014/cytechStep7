@@ -34,6 +34,11 @@ class TestController extends Controller
         //検索処理
         $model = new product();
         $products = $model->searchProducts($keyword, $company_id);
+        $products->appends([
+            'keyword' => $keyword,
+            'company_id' => $company_id,
+        ]);
+
         //companiesデータを呼び出し
         $model = new company();
         $companies = $model->getCompany();
@@ -52,6 +57,7 @@ class TestController extends Controller
     //登録処理
     public function exeStore(TestRequest $request){
 
+        $image_path = null; // 初期化
         if ($request->has('img_path')) {
 
             $image = $request->file('img_path');
@@ -66,11 +72,11 @@ class TestController extends Controller
 
         try {
             $model = new product();
-            $model->registProduct($request, $image_path);
+            $product = $model->registProduct($request, $image_path);
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back();
+            return back()->with('message', '登録に失敗しました。');
         }
 
         session()->flash('message', '登録しました');
@@ -105,6 +111,7 @@ class TestController extends Controller
     //更新処理
     public function exeUpdate(TestRequest $request, $id){
 
+        $image_path = null; // 初期化
         $model = new product();
         $product = $model->findList($id);
 
@@ -128,7 +135,7 @@ class TestController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back();
+            return back()->with('message', '更新に失敗しました。');
         }
 
         return redirect(route('edit', $id))->with('message', '更新しました');

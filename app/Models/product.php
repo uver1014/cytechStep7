@@ -27,39 +27,45 @@ class product extends Model
         'comment'
     ];
 
-     // 結合してデータを取得
+    // 結合してデータを取得
     public function getList(){
         return DB::table('products')
-        ->join('companies', 'products.company_id', '=', 'companies.id')
-        ->select('products.*', 'companies.company_name')
-        ->get();
+            ->join('companies', 'products.company_id', '=', 'companies.id')
+            ->select('products.*', 'companies.company_name as company_name')
+            ->orderBy('products.id', 'asc')
+            ->paginate(10);
     }
 
     //
     public function searchProducts($keyword, $company_id){
 
+        // クエリをビルド
         $query = DB::table('products')
-        ->join('companies', 'products.company_id', '=', 'companies.id')
-        ->select('products.*', 'companies.company_name as company_name')
-        ->get();
+            ->join('companies', 'products.company_id', '=', 'companies.id')
+            ->select('products.*', 'companies.company_name as company_name');
 
-        if (!empty($keyword)) {
-            $query->where('product_name', 'like', "%{$keyword}%")
-                ->orwhere('price', $keyword)
-                ->orwhere('stock', $keyword)
-                ->orwhere('comment', 'like', "%{$keyword}%");
-        }
-        
-        if (!empty($company_id)) {
-            $query->where('company_id', $company_id);
-        }
+        // 検索条件をクロージャでグループ化
+        $query->where(function ($q) use ($keyword, $company_id) {
+            if (!empty($company_id)) {
+                $q->where('products.company_id', $company_id);
+            }
+
+            if (!empty($keyword)) {
+                $q->where(function ($subQuery) use ($keyword) {
+                    $subQuery->where('products.product_name', 'like', "%{$keyword}%")
+                        ->orWhere('products.price', $keyword)
+                        ->orWhere('products.stock', $keyword)
+                        ->orWhere('products.comment', 'like', "%{$keyword}%");
+                });
+            }
+        });
 
         return $query->orderBy('products.id', 'asc')->paginate(10);
     }
-    
+
 
     // 登録処理
-    public function registProduct($data, $image_path) {
+    public function registProduct($data, $image_path){
         DB::table('products')->insert([
             'company_id' => $data->company_id,
             'product_name' => $data->product_name,
@@ -69,14 +75,14 @@ class product extends Model
             'comment' => $data->comment,
         ]);
     }
-    
+
     //結合してidでデータを取得
     public function findList($id){
         return DB::table('products')
-        ->join('companies', 'products.company_id', '=', 'companies.id')
-        ->select('products.*', 'companies.company_name')
-        ->where('products.id', $id)
-        ->first();
+            ->join('companies', 'products.company_id', '=', 'companies.id')
+            ->select('products.*', 'companies.company_name')
+            ->where('products.id', $id)
+            ->first();
         
     }
 
@@ -84,14 +90,14 @@ class product extends Model
     public function updateProduct($data, $image_path, $id){
 
         return DB::table('products')
-        ->where('id', $id)
-        ->update([
-            'product_name' => $data->product_name,
-            'company_id' => $data->company_id,
-            'price' => $data->price,
-            'stock' => $data->stock,
-            'img_path' => $image_path,
-            'comment' => $data->comment,
-        ]);
+            ->where('id', $id)
+            ->update([
+                'product_name' => $data->product_name,
+                'company_id' => $data->company_id,
+                'price' => $data->price,
+                'stock' => $data->stock,
+                'img_path' => $image_path,
+                'comment' => $data->comment,
+            ]);
     }
 }
