@@ -22,7 +22,7 @@ class TestController extends Controller
         $model = new company();
         $companies = $model->getCompany();
 
-        return view('layouts.list', ['products' => $products, 'companies' => $companies]);
+        return view('Test.list', ['products' => $products, 'companies' => $companies]);
     }
 
     //検索機能
@@ -43,7 +43,7 @@ class TestController extends Controller
         $model = new company();
         $companies = $model->getCompany();
 
-        return view('layouts.list', ['keyword' => $keyword, 'companies' => $companies, 'products' => $products]);
+        return view('Test.list', ['keyword' => $keyword, 'companies' => $companies, 'products' => $products]);
     }
 
     //登録画面を表示
