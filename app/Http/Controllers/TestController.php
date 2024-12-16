@@ -28,23 +28,52 @@ class TestController extends Controller
     //検索機能
     public function exeSearch(Request $request){
 
+        if ($request->ajax()) {
+
+            $output = "";
+
         //入力された値を代入
         $keyword = $request->input('keyword');
         $company_id = $request->input('company_id');
+        $pricemin = $request->input('pricemin');
+        $pricemax = $request->input('pricemax');
+        $stockmin = $request->input('stockmin');
+        $stockmax = $request->input('stockmax');
         //検索処理
         $model = new product();
-        $products = $model->searchProducts($keyword, $company_id);
-        $products->appends([
-            'keyword' => $keyword,
-            'company_id' => $company_id,
-        ]);
+        $products = $model->searchProducts($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax);
 
-        //companiesデータを呼び出し
-        $model = new company();
-        $companies = $model->getCompany();
+        foreach ($products as $product) {
+            // 生成されたHTMLを出力
+            $output .= '<tr>
+                <td>' . $product->id . '</td>
+                <td><img src="' . asset($product->img_path) . '" class="img"></td>
+                <td>' . $product->product_name . '</td>
+                <td>' . $product->price . '</td>
+                <td>' . $product->stock . '</td>
+                <td>' . $product->company_name . '</td>
+                <td>'.'<a href="' . route('detail', $product->id) . '" class="btn btn-primary">'.'詳細</a>'.'</td>
+                <td>'.'
+                    <form method="POST" action="' . route('delete', $product->id) . '" onSubmit="return checkDelete()" enctype="multipart/form-data">' .
+                        csrf_field() .
+                        method_field('DELETE') .
+                        '<button type="submit" class="btn btn-danger">削除</button>' .
+                    '</form>
+                '.'</td>
+                </tr>';
+        }
+        return response()->json($output);
+    
 
-        return view('Test.list', ['keyword' => $keyword, 'companies' => $companies, 'products' => $products]);
+    $model = new Product();
+    $products = $model->getList();
+    //companiesデータを呼び出し
+    $model = new company();
+    $companies = $model->getCompany();
+     
+    return view('Test.list', [ 'companies' => $companies, 'products' => $products]);
     }
+}
 
     //登録画面を表示
     public function createList(){
@@ -143,19 +172,11 @@ class TestController extends Controller
 
     //削除機能
     public function exeDelete($id){
+        
+            $product = product::findOrFail($id);
+            $product->delete();
+            return response()->json(['success' => true,  'tr'=>'tr_'.$id]);
+        
 
-        if (empty($id)) {
-            session()->flash('message', 'データがありません');
-            return redirect(route('List'));
-        }
-
-        try {
-            $product = product::destroy($id);
-        } catch (\Exception $e) {
-            abort(500);
-        }
-
-        session()->flash('message', '削除しました');
-        return redirect(route('List'));
     }
 }

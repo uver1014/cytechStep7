@@ -14,25 +14,16 @@ class sale extends Model
 
     protected $table ='sales';
 
-    protected $fillable =
-    [
-        'id',
-        'product_id',
-        
-    ];
-
-
-    public function product()
-    {
-        return $this->belongsTo(product::class);
-        
-    }
+    protected $fillable =['product_id'];
 
     public function getList() {
         // articlesテーブルからデータを取得
-        $sales = DB::table('sales')->get();
+        $sales = DB::table('sales')
+        ->join('products', 'sales.product_id', '=', 'product.id')
+        ->select('sales.*', 'product.product_name as product_name')
+        ->get();
 
         return $sales;
     }
-
+   
 }

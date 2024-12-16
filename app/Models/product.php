@@ -32,12 +32,12 @@ class product extends Model
         return DB::table('products')
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->select('products.*', 'companies.company_name as company_name')
-            ->orderBy('products.id', 'asc')
+            ->orderBy('products.id', 'desc')
             ->paginate(10);
-    }
+        }
 
     //
-    public function searchProducts($keyword, $company_id){
+    public function searchProducts($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax){
 
         // クエリをビルド
         $query = DB::table('products')
@@ -45,7 +45,7 @@ class product extends Model
             ->select('products.*', 'companies.company_name as company_name');
 
         // 検索条件をクロージャでグループ化
-        $query->where(function ($q) use ($keyword, $company_id) {
+        $query->where(function ($q) use ($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax) {
             if (!empty($company_id)) {
                 $q->where('products.company_id', $company_id);
             }
@@ -58,9 +58,33 @@ class product extends Model
                         ->orWhere('products.comment', 'like', "%{$keyword}%");
                 });
             }
+
+           if(!empty($pricemin) || !empty($pricemax)){
+            $q->where(function ($priceQuery) use ($pricemin, $pricemax){
+                if(!empty($pricemin) && !empty($pricemax)){
+                $priceQuery->whereBetween('products.price', [$pricemin, $pricemax]);
+            }elseif(!empty($pricemin)){
+                $priceQuery->where('products.price', '>=', $pricemin);
+            }elseif(!empty($pricemax)){
+                $priceQuery->where('products.price', '<=', $pricemax);
+              }
+            });
+           }
+
+           if(!empty($stockmin) || !empty($stockmax)){
+            $q->where(function ($stockQuery) use ($stockmin, $stockmax){
+                if(!empty($stockmin) && !empty($stockmax)){
+                    $stockQuery->whereBetween('products.stock', [$stockmin, $stockmax]);
+                }elseif(!empty($stockmin)){
+                    $stockQuery->where('products.stock', '>=', $stockmin);
+                }elseif(!empty($stockmax)){
+                    $stockQuery->where('products.stock', '<=', $stockmax);
+                }
+            });
+         }
         });
 
-        return $query->orderBy('products.id', 'asc')->paginate(10);
+        return $query->orderBy('id','desc')->paginate(10);
     }
 
 
@@ -72,7 +96,7 @@ class product extends Model
             'price' => $data->price,
             'stock' => $data->stock,
             'img_path' => $image_path,
-            'comment' => $data->comment,
+            'comment' => $data->comment
         ]);
     }
 
