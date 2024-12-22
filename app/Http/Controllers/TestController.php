@@ -14,7 +14,8 @@ class TestController extends Controller
 {
 
     //一覧画面を表示
-    public function showList(){
+    public function showList()
+    {
         //productsデータを呼び出し
         $model = new product();
         $products = $model->getList();
@@ -26,65 +27,22 @@ class TestController extends Controller
     }
 
     //検索機能
-    public function exeSearch(Request $request){
-
-        if ($request->ajax()) {
-
-            $output = "";
-
-        //入力された値を代入
-        $keyword = $request->input('keyword');
-        $company_id = $request->input('company_id');
-        $pricemin = $request->input('pricemin');
-        $pricemax = $request->input('pricemax');
-        $stockmin = $request->input('stockmin');
-        $stockmax = $request->input('stockmax');
+    public function exeSearch(Request $request)
+    {
         //検索処理
+        if ($request->ajax()) {
         $model = new product();
-        $products = $model->searchProducts($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax);
-
-        foreach ($products as $product) {
-            // 生成されたHTMLを出力
-            $output .= '<tr>
-                <td>' . $product->id . '</td>
-                <td><img src="' . asset($product->img_path) . '" class="img"></td>
-                <td>' . $product->product_name . '</td>
-                <td>' . $product->price . '</td>
-                <td>' . $product->stock . '</td>
-                <td>' . $product->company_name . '</td>
-                <td>'.'<a href="' . route('detail', $product->id) . '" class="btn btn-primary">'.'詳細</a>'.'</td>
-                <td>'.'
-                    <form method="POST" action="' . route('delete', $product->id) . '" onSubmit="return checkDelete()" enctype="multipart/form-data">' .
-                        csrf_field() .
-                        method_field('DELETE') .
-                        '<button type="submit" class="btn btn-danger">削除</button>' .
-                    '</form>
-                '.'</td>
-                </tr>';
+        $products = $model->searchProducts($request);
+        
+            // 検索結果のHTMLを部分ビューから生成
+            $html = view('Test.search_result', ['products' => $products])->render();
+            return response()->json(['success' => true, 'html' => $html,]);
         }
-        return response()->json($output);
-    
-
-    $model = new Product();
-    $products = $model->getList();
-    //companiesデータを呼び出し
-    $model = new company();
-    $companies = $model->getCompany();
-     
-    return view('Test.list', [ 'companies' => $companies, 'products' => $products]);
-    }
-}
-
-    //登録画面を表示
-    public function createList(){
-        //
-        $model = new company();
-        $companies = $model->getCompany();
-        return view('Test.form',  ['companies' => $companies]);
     }
 
     //登録処理
-    public function exeStore(TestRequest $request){
+    public function exeStore(TestRequest $request)
+    {
 
         $image_path = null; // 初期化
         if ($request->has('img_path')) {
@@ -113,7 +71,8 @@ class TestController extends Controller
     }
 
     //詳細画面の表示
-    public function showDetail($id){
+    public function showDetail($id)
+    {
 
         $model = new product();
         $product = $model->findList($id);
@@ -127,7 +86,8 @@ class TestController extends Controller
     }
 
     //編集画面の表示
-    public function editDetail($id){
+    public function editDetail($id)
+    {
         //
         $model = new company();
         $companies = $model->getCompany();
@@ -138,7 +98,8 @@ class TestController extends Controller
     }
 
     //更新処理
-    public function exeUpdate(TestRequest $request, $id){
+    public function exeUpdate(TestRequest $request, $id)
+    {
 
         $image_path = null; // 初期化
         $model = new product();
@@ -171,12 +132,14 @@ class TestController extends Controller
     }
 
     //削除機能
-    public function exeDelete($id){
-        
-            $product = product::findOrFail($id);
-            $product->delete();
-            return response()->json(['success' => true,  'tr'=>'tr_'.$id]);
-        
-
+    public function exeDelete($id)
+    {
+        try{
+        $product = product::findOrFail($id);
+        $product->delete();
+        return response()->json(['success' => true,  'tr' => 'tr_' . $id]);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => '削除に失敗しました。'], 500);
+        }
     }
 }

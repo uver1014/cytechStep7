@@ -25,5 +25,5 @@ class sale extends Model
 
         return $sales;
     }
-   
+
 }

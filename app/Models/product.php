@@ -28,90 +28,78 @@ class product extends Model
     ];
 
     // 結合してデータを取得
-    public function getList(){
+    public function getList()
+    {
         return DB::table('products')
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->select('products.*', 'companies.company_name as company_name')
             ->orderBy('products.id', 'desc')
             ->paginate(10);
-        }
+    }
 
     //
-    public function searchProducts($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax){
+    public function searchProducts($request)
+    {
 
         // クエリをビルド
         $query = DB::table('products')
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->select('products.*', 'companies.company_name as company_name');
 
-        // 検索条件をクロージャでグループ化
-        $query->where(function ($q) use ($keyword, $company_id, $pricemin, $pricemax, $stockmin, $stockmax) {
-            if (!empty($company_id)) {
-                $q->where('products.company_id', $company_id);
-            }
+        // 検索条件を適用
+        if ($request->filled('keyword')) {
+            $query->where('product_name', 'LIKE', '%' . $request->keyword . '%');
+        }
 
-            if (!empty($keyword)) {
-                $q->where(function ($subQuery) use ($keyword) {
-                    $subQuery->where('products.product_name', 'like', "%{$keyword}%")
-                        ->orWhere('products.price', $keyword)
-                        ->orWhere('products.stock', $keyword)
-                        ->orWhere('products.comment', 'like', "%{$keyword}%");
-                });
-            }
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
+        }
 
-           if(!empty($pricemin) || !empty($pricemax)){
-            $q->where(function ($priceQuery) use ($pricemin, $pricemax){
-                if(!empty($pricemin) && !empty($pricemax)){
-                $priceQuery->whereBetween('products.price', [$pricemin, $pricemax]);
-            }elseif(!empty($pricemin)){
-                $priceQuery->where('products.price', '>=', $pricemin);
-            }elseif(!empty($pricemax)){
-                $priceQuery->where('products.price', '<=', $pricemax);
-              }
-            });
-           }
+        if ($request->filled('pricemin')) {
+            $query->where('price', '>=', $request->pricemin);
+        }
 
-           if(!empty($stockmin) || !empty($stockmax)){
-            $q->where(function ($stockQuery) use ($stockmin, $stockmax){
-                if(!empty($stockmin) && !empty($stockmax)){
-                    $stockQuery->whereBetween('products.stock', [$stockmin, $stockmax]);
-                }elseif(!empty($stockmin)){
-                    $stockQuery->where('products.stock', '>=', $stockmin);
-                }elseif(!empty($stockmax)){
-                    $stockQuery->where('products.stock', '<=', $stockmax);
-                }
-            });
-         }
-        });
+        if ($request->filled('pricemax')) {
+            $query->where('price', '<=', $request->pricemax);
+        }
 
-        return $query->orderBy('id','desc')->paginate(10);
+        if ($request->filled('stockmin')) {
+            $query->where('stock', '>=', $request->stockmin);
+        }
+
+        if ($request->filled('stockmax')) {
+            $query->where('stock', '<=', $request->stockmax);
+        }
+        return $query->paginate(5); 
     }
 
 
     // 登録処理
-    public function registProduct($data, $image_path){
+    public function registProduct($data, $image_path)
+    {
         DB::table('products')->insert([
             'company_id' => $data->company_id,
             'product_name' => $data->product_name,
             'price' => $data->price,
             'stock' => $data->stock,
             'img_path' => $image_path,
-            'comment' => $data->comment
+            'comment' => $data->comment,
         ]);
     }
 
     //結合してidでデータを取得
-    public function findList($id){
+    public function findList($id)
+    {
         return DB::table('products')
             ->join('companies', 'products.company_id', '=', 'companies.id')
             ->select('products.*', 'companies.company_name')
             ->where('products.id', $id)
             ->first();
-        
     }
 
     //更新処理
-    public function updateProduct($data, $image_path, $id){
+    public function updateProduct($data, $image_path, $id)
+    {
 
         return DB::table('products')
             ->where('id', $id)
